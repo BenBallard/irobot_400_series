@@ -149,14 +149,24 @@ class Create:
 	def start(self):
 		"""Start the iCreate after initialization or reset."""
 		print "Starting Create"
-		self.__sendNow(128,130,132,140,1,5,64,16,69,16,74,16,72,40,69,60,141,1)
+		#send the start command tell the roomba that i will be sending commands to it
+		self.__sendNow(128)
+		sleep(.1)
+		#Move to safe mode 
+		self.__sendNow(130)
+		sleep(.1)
+		#Move to full control mode
+		self.__sendNow(132)
+		sleep(.1)
+		#Move play the boot up song
+		self.__sendNow(140,1,5,64,16,69,16,74,16,72,40,69,60,141,1)
 		sleep(1)
 		self.__sendNow(139,255,255,0)
 		sleep(1)
 		self.__sendNow(139,255,255,255)
 		sleep(1)
-		
-		self.__sendNow(139,255,255,0)
+			
+		self.send(139,255,255,0)
 		sleep(1)
 		self.__sendNow(139,255,255,255)
 		sleep(1)
@@ -208,13 +218,14 @@ class Create:
 		return 2**bits+num
 
 	def send(self, *opcodes):
+		print "Send waiting for lock"
 		self.queueLock.acquire()
 
 		def lmbda():
 			self.__sendNow(*opcodes)
-
+		
 		self.queue.append(lmbda)
-
+		print "send Lock acquired"
 		self.queueLock.release()
 
 	def __sendNow(self, *opcodes):
@@ -225,8 +236,9 @@ class Create:
 		self.portLock.release()
 
 	def __sendAll(self):
+		print "SendAll wating for lock"
 		self.queueLock.acquire()
-		
+		print "SendAll lock acquired"
 		self.__read(self.port.inWaiting())
 		for send in self.queue:
 			send()
