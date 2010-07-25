@@ -50,12 +50,15 @@ class Monitor(Thread):
 			(7,1,mask,("na","na","na","wheeldropCaster","wheeldropLeft","wheeldropRight","bumpLeft","bumpRight")),
 			(8,1,unsigned,("wall",)),
 			(9,1,unsigned,("cliffLeft",)),
-			(10,1,unsigned,("cliffFronLeft",)),
+			(10,1,unsigned,("cliffFrontLeft",)),
 			(11,1,unsigned,("cliffFrontRight",)),
 			(12,1,unsigned,("cliffRight",)),
 			(13,1,unsigned,("virtualWall",)),
-			(17,1,unsigned,("infraredByte",)),
-			(18,1,mask,("na","na","na","na","na","advance","na","play")),
+			(17,1,mask,("na","na","na","na","overCurrentLeft","overCurrentRight","overCurrentMainBrush","overCurrentSideBrush")),
+			(18,1,unsigned,("dirtDetectorLeft",)),
+			(18,1,unsigned,("dirtDetectorRight",)),
+			(18,1,unsigned,("infraredByte",)),
+			(18,1,unsigned,("button",)),
 			(19,2,signed,("distance",)),
 			(20,2,signed,("angle",)),
 			(21,1,unsigned,("chargingState",)),
@@ -64,14 +67,6 @@ class Monitor(Thread):
 			(24,1,signed8,("batteryTemperature",)),
 			(25,2,unsigned,("batteryCharge",)),
 			(26,2,unsigned,("batteryCapacity",)),
-			(27,2,unsigned,("wallSignal",)),
-			(28,2,unsigned,("cliffLeftSignal",)),
-			(29,2,unsigned,("cliffFrontLeftSignal",)),
-			(30,2,unsigned,("cliffFrontRightSignal",)),
-			(31,2,unsigned,("cliffRightSignal",)),
-			(34,1,mask,("na","na","na","na","na","na","homeBase","internalCharger")),
-			(36,1,unsigned,("songNumber",)),
-			(37,1,unsigned,("songPlaying",)),
 			)
 
 	def run(self):
@@ -79,7 +74,7 @@ class Monitor(Thread):
 			then = datetime.now()
 			self.sendAll() #send queued commands
 
-			self.create.send(149,len(self.packets),*[i[0] for i in self.packets]) #read sensor packets
+			self.create.send(142,0) #read sensor packets
 			self.sendAll() 
 
 			bytes = self.read(sum([i[1] for i in self.packets]))
@@ -160,25 +155,25 @@ class Create:
 		sleep(.1)
 		#Move play the boot up song
 		self.__sendNow(140,1,5,64,16,69,16,74,16,72,40,69,60,141,1)
-		sleep(1)
-		self.__sendNow(139,255,255,0)
-		sleep(1)
-		self.__sendNow(139,255,255,255)
-		sleep(1)
+#		sleep(1)
+#		self.__sendNow(139,255,255,0)
+#		sleep(1)
+#		self.__sendNow(139,255,255,255)
+#		sleep(1)
 			
-		self.send(139,255,255,0)
-		sleep(1)
-		self.__sendNow(139,255,255,255)
-		sleep(1)
-		self.__sendNow(139,255,255,0)
-		sleep(1)
-		self.__sendNow(139,255,255,255)
-		sleep(1)
-		self.__sendNow(139,255,255,0)
-		sleep(1)
-		self.__sendNow(139,255,255,255)
-		sleep(1)
-		print "sent"
+#		self.send(139,255,255,0)
+#		sleep(1)
+#		self.__sendNow(139,255,255,255)
+#		sleep(1)
+#		self.__sendNow(139,255,255,0)
+#		sleep(1)
+#		self.__sendNow(139,255,255,255)
+#		sleep(1)
+#		self.__sendNow(139,255,255,0)
+#		sleep(1)
+#		self.__sendNow(139,255,255,255)
+#		sleep(1)
+#		print "sent"
 		sleep(10)
 		monitor = Monitor(self.runRef, self.packetRef, self, self.__read, self.__sendAll, self.__addDistance, self.__addAngle, self.update)
 		monitor.start()
@@ -218,14 +213,11 @@ class Create:
 		return 2**bits+num
 
 	def send(self, *opcodes):
-		print "Send waiting for lock"
 		self.queueLock.acquire()
-
 		def lmbda():
 			self.__sendNow(*opcodes)
 		
 		self.queue.append(lmbda)
-		print "send Lock acquired"
 		self.queueLock.release()
 
 	def __sendNow(self, *opcodes):
@@ -236,9 +228,7 @@ class Create:
 		self.portLock.release()
 
 	def __sendAll(self):
-		print "SendAll wating for lock"
 		self.queueLock.acquire()
-		print "SendAll lock acquired"
 		self.__read(self.port.inWaiting())
 		for send in self.queue:
 			send()

@@ -22,7 +22,7 @@ class CreateDriver:
 		self.packetPub = rospy.Publisher('sensorPacket', SensorPacket)
 		self.odomPub = rospy.Publisher('odom',Odometry)
 		self.odomBroadcaster = TransformBroadcaster()
-		self.fields = ['wheeldropCaster','wheeldropLeft','wheeldropRight','bumpLeft','bumpRight','wall','cliffLeft','cliffFronLeft','cliffFrontRight','cliffRight','virtualWall','infraredByte','advance','play','distance','angle','chargingState','voltage','current','batteryTemperature','batteryCharge','batteryCapacity','wallSignal','cliffLeftSignal','cliffFrontLeftSignal','cliffFrontRightSignal','cliffRightSignal','homeBase','internalCharger','songNumber','songPlaying']
+		self.fields = ['wheeldropCaster','wheeldropLeft','wheeldropRight','bumpLeft','bumpRight','wall','cliffLeft','cliffFrontLeft','cliffFrontRight','cliffRight','virtualWall','overCurrentLeft','overCurrentRight','overCurrentMainBrush','overCurrentSideBrush','dirtDetectorLeft','dirtDetectorRight','virtualWall','infraredByte','button','distance','angle','chargingState','voltage','current','batteryTemperature','batteryCharge','batteryCapacity']
 		self.then = datetime.now() 
 		self.x = 0
 		self.y = 0
