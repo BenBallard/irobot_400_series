@@ -72,8 +72,6 @@ class CreateDriver:
 		odom = Odometry()
 		odom.header.stamp = rospy.Time.now()
 		odom.header.frame_id = "odom"
-		print self.x
-		print self.y
 		odom.pose.pose.position.x = self.x
 		odom.pose.pose.position.y = self.y
 		odom.pose.pose.position.z = 0
@@ -110,21 +108,11 @@ class CreateDriver:
 		self.create.leds(req.advance,req.play,req.color,req.intensity)
 		return LedsResponse(True)
 
-	def tank(self,req):
-		if (req.clear):
-			self.create.clear()
-		self.create.tank(req.left,req.right)
-		return TankResponse(True)
-
-	def turn(self,req):
-		if (req.clear):
-			self.create.clear()
-		self.create.turn(req.turn)
-		return TurnResponse(True)
-
 	def twist(self,req):
 		x = req.linear.x*1000.
 		th = req.angular.z
+
+		#needs fixed
 		if (x == 0):
 			th = th*180/pi
 			speed = (8*pi*th)/9
@@ -133,7 +121,7 @@ class CreateDriver:
 			x = int(x)
 			self.create.tank(x,x)
 		else:
-			self.create.forwardTurn(int(x),int(x/th))
+			self.create.drive(int(x),int(x/th))
 
 if __name__ == '__main__':
 	node = rospy.init_node('create')
@@ -143,8 +131,6 @@ if __name__ == '__main__':
 	rospy.Service('circle',Circle,driver.circle)
 	rospy.Service('demo',Demo,driver.demo)
 	rospy.Service('leds',Leds,driver.leds)
-	rospy.Service('tank',Tank,driver.tank)
-	rospy.Service('turn',Turn,driver.turn)
 
 	rospy.Subscriber("cmd_vel", Twist, driver.twist)
 

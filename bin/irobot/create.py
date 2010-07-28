@@ -174,7 +174,7 @@ class Create:
 #		self.__sendNow(139,255,255,255)
 #		sleep(1)
 #		print "sent"
-		sleep(10)
+		sleep(1)
 		monitor = Monitor(self.runRef, self.packetRef, self, self.__read, self.__sendAll, self.__addDistance, self.__addAngle, self.update)
 		monitor.start()
 		sleep(1.5)
@@ -285,7 +285,7 @@ class Create:
 
 	def brake(self):
 		"""Stops the iCreate, takes no parameters"""
-		self.tank(0,0)
+		self.drive(0,0)
 
 	def demo(self, num):
 		"""Takes a single parameter, the number of the demo to begin. "Running" demo -1 will stop the demo. After using this function the iCreate must be reset.""" 
@@ -317,22 +317,7 @@ class Create:
 		if (not  self.songPlaying):
 			self.send(141,num)
 
-	def tank(self,left,right):
-		"""Drive the iCreate like a tank (i.e. left throttle, right throttle). Takes two parameters: left and right throttle. Each can be between -500 and 500 representing mm/s."""
-		if (left < -500): 
-			left = -500
-		if (right < -500):
-			right = -500
-		if (left > 500):
-			left = 500
-		if (right > 500):
-			right = 500
-
-		lh,ll = self.__convert(left)
-		rh,rl = self.__convert(right)
-		self.send(145,rh,rl,lh,ll)
-
-	def forwardTurn(self,speed,radius):
+	def drive(self,speed,radius):
 		"""Takes two parameters: speed and radius. Drives the iCreate at speed with enough of an angle that the iCreate will carve a circle with the given radius. Speed is in mm/s and can vary between -500 and 500. The radius can vary between -2000 and 2000 mm (with negative mm turning left)."""
 		if (speed > 500):
 			speed = 500
