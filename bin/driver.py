@@ -94,12 +94,6 @@ class CreateDriver:
 			self.create.brake()
 		return BrakeResponse(True)
 
-	def circle(self,req):
-		if (req.clear):
-			self.create.clear()
-		self.create.forwardTurn(req.speed,req.radius)
-		return CircleResponse(True)
-
 	def demo(self,req):
 		self.create.demo(req.demo)
 		return DemoResponse(True)
@@ -109,26 +103,28 @@ class CreateDriver:
 		return LedsResponse(True)
 
 	def twist(self,req):
-		x = req.linear.x*1000.
-		th = req.angular.z
+		x = req.linear.x*1000
+		omega = req.angular.z
+		self.create.driveTwist(x,omega)
 
-		#needs fixed
-		if (x == 0):
-			th = th*180/pi
-			speed = (8*pi*th)/9
-			self.create.left(int(speed))
-		elif (th == 0):
-			x = int(x)
-			self.create.tank(x,x)
-		else:
-			self.create.drive(int(x),int(x/th))
+#		x = req.linear.x*1000
+#		th = req.angular.z
+		
+#		if (x == 0):
+#			th = th*180/pi
+#			speed = (8*pi*th)/9
+#			self.create.left(int(speed))
+#		elif (th == 0):
+#			x = int(x)
+#			self.create.drive(x,)
+#		else:
+#			self.create.drive(int(x),int(x/th))
 
 if __name__ == '__main__':
 	node = rospy.init_node('create')
 	driver = CreateDriver()
 	
 	rospy.Service('brake',Brake,driver.brake)
-	rospy.Service('circle',Circle,driver.circle)
 	rospy.Service('demo',Demo,driver.demo)
 	rospy.Service('leds',Leds,driver.leds)
 

@@ -155,25 +155,7 @@ class Create:
 		sleep(.1)
 		#Move play the boot up song
 		self.__sendNow(140,1,5,64,16,69,16,74,16,72,40,69,60,141,1)
-#		sleep(1)
-#		self.__sendNow(139,255,255,0)
-#		sleep(1)
-#		self.__sendNow(139,255,255,255)
-#		sleep(1)
-			
-#		self.send(139,255,255,0)
-#		sleep(1)
-#		self.__sendNow(139,255,255,255)
-#		sleep(1)
-#		self.__sendNow(139,255,255,0)
-#		sleep(1)
-#		self.__sendNow(139,255,255,255)
-#		sleep(1)
-#		self.__sendNow(139,255,255,0)
-#		sleep(1)
-#		self.__sendNow(139,255,255,255)
-#		sleep(1)
-#		print "sent"
+		
 		sleep(1)
 		monitor = Monitor(self.runRef, self.packetRef, self, self.__read, self.__sendAll, self.__addDistance, self.__addAngle, self.update)
 		monitor.start()
@@ -317,6 +299,24 @@ class Create:
 		if (not  self.songPlaying):
 			self.send(141,num)
 
+	def driveTwist(self,vel,omega):
+	"""Basicly allow for the ros cmd_vel's to be sent down here to procesed properly.  This interface uses the drive method to actually send the commands"""
+		if omega == 0:
+			#0x8000 = striaght
+			self.drive(int(vel),0x8000)	
+		elif vel == 0:
+			#Distance between tires is 258
+			#basicly find percent of ciricle that must be rotated each second and multiply it times distance around the ciricle to see the velocity of the tires required to do that
+			turnVel = int( pi*258*(omega/(2*pi)))
+			if omega > 0:
+				#I think this is the right directions	
+				self.drive(turnVel,0x0001)
+			else:
+				self.drive(turnVel,0xFFFF)
+		else:
+			self.drive(int(vel),int(vel/omega))			
+
+
 	def drive(self,speed,radius):
 		"""Takes two parameters: speed and radius. Drives the iCreate at speed with enough of an angle that the iCreate will carve a circle with the given radius. Speed is in mm/s and can vary between -500 and 500. The radius can vary between -2000 and 2000 mm (with negative mm turning left)."""
 		if (speed > 500):
@@ -338,13 +338,3 @@ class Create:
 		rh,rl = self.__convert(radius)
 		self.send(137,vh,vl,rh,rl)
 
-	def turn(self,speed):
-		self.right(speed)
-
-	def right(self,speed):
-		"""Takes in a parameter: speed and turns clockwise in place at speed mm/s."""
-		self.forwardTurn(speed,0xFFFF)
-
-	def left(self,speed):
-		"""Takes in a parameter: speed and turns counter-clockwise in place at speed mm/s."""
-		self.forwardTurn(speed,0x0001)
