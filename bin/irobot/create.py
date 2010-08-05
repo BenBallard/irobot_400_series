@@ -7,6 +7,7 @@ from time import sleep
 from threading import Thread
 from threading import Lock
 from datetime import datetime
+from math import *
 
 class Monitor(Thread):
 	def __init__(self, watchdog, packetRef, create, read, sendAll, addDistance, addAngle, update):
@@ -300,21 +301,22 @@ class Create:
 			self.send(141,num)
 
 	def driveTwist(self,vel,omega):
-	"""Basicly allow for the ros cmd_vel's to be sent down here to procesed properly.  This interface uses the drive method to actually send the commands"""
+		"""Basicly allow for the ros cmd_vel's to be sent down here to procesed properly.  This interface uses the drive method to actually send the commands"""
 		if omega == 0:
 			#0x8000 = striaght
 			self.drive(int(vel),0x8000)	
 		elif vel == 0:
 			#Distance between tires is 258
 			#basicly find percent of ciricle that must be rotated each second and multiply it times distance around the ciricle to see the velocity of the tires required to do that
-			turnVel = int( pi*258*(omega/(2*pi)))
+			turnVel = int( pi*258*(abs(omega)/(2*pi)))
 			if omega > 0:
-				#I think this is the right directions	
+				#I think this is the right directions
 				self.drive(turnVel,0x0001)
 			else:
 				self.drive(turnVel,0xFFFF)
 		else:
-			self.drive(int(vel),int(vel/omega))			
+			#vel/omega fail
+			self.drive(int(vel),int(vel/(omega*pi)))			
 
 
 	def drive(self,speed,radius):
@@ -324,9 +326,10 @@ class Create:
 		if (speed < -500):
 			speed = -500
 		if (not (radius == 0x8000 
-			or radius == 0x7FF 
+			or radius == 0x7FFF 
 			or radius == 0xFFFF 
-			or radius == 0x001) 
+			or radius == 0x001
+			or radius == 0xFFFF) 
 			and 
 			(radius > 2000 or radius < -2000)):
 			if (radius > 2000):
@@ -336,5 +339,7 @@ class Create:
 
 		vh,vl = self.__convert(speed)
 		rh,rl = self.__convert(radius)
+		#rh = 0xFF
+		#rl = 0xFF
 		self.send(137,vh,vl,rh,rl)
 
