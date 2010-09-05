@@ -71,6 +71,7 @@ class Monitor(Thread):
 			)
 
 	def run(self):
+		numOfBytes = sum([i[1] for i in self.packets])
 		while(len(self.watchdog) == 0):
 			then = datetime.now()
 			self.sendAll() #send queued commands
@@ -78,10 +79,10 @@ class Monitor(Thread):
 			self.create.send(142,0) #read sensor packets
 			self.sendAll() 
 
-			bytes = self.read(sum([i[1] for i in self.packets]))
+			bytes = self.read(numOfBytes)
 
 			try:
-				bytes = unpack('B'*sum([i[1] for i in self.packets]),bytes)
+				bytes = unpack('B'*numOfBytes,bytes)
 				data = {}
 
 				offset = 0
