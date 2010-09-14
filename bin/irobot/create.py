@@ -137,7 +137,6 @@ class Create:
 		self.angleLock = Lock()
 		self.__angle = 0
 		self.port = Serial(tty, 57600, timeout= self.timeout)
-		#self.port = Serial(tty, 19200, timeout= self.timeout)
 		self.portLock = Lock()
 		self.update = lambda : ''
 		self.reset()
@@ -340,7 +339,5 @@ class Create:
 
 		vh,vl = self.__convert(speed)
 		rh,rl = self.__convert(radius)
-		#rh = 0xFF
-		#rl = 0xFF
 		self.send(137,vh,vl,rh,rl)
 

@@ -107,27 +107,15 @@ class CreateDriver:
 		omega = req.angular.z
 		self.create.driveTwist(x,omega)
 
-#		x = req.linear.x*1000
-#		th = req.angular.z
-		
-#		if (x == 0):
-#			th = th*180/pi
-#			speed = (8*pi*th)/9
-#			self.create.left(int(speed))
-#		elif (th == 0):
-#			x = int(x)
-#			self.create.drive(x,)
-#		else:
-#			self.create.drive(int(x),int(x/th))
 
 if __name__ == '__main__':
 	node = rospy.init_node('create')
 	driver = CreateDriver()
 	
 	rospy.Service('brake',Brake,driver.brake)
-	rospy.Service('demo',Demo,driver.demo)
-	rospy.Service('leds',Leds,driver.leds)
-
+	#rospy.Service('demo',Demo,driver.demo)
+	#rospy.Service('leds',Leds,driver.leds)
+	#rospy.Service('motors',Motor,driver.motors)
 	rospy.Subscriber("cmd_vel", Twist, driver.twist)
 
 	sleep(1)
