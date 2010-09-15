@@ -120,12 +120,12 @@ class Monitor(Thread):
 			if (elapsed < self.create.period*1000.):
 				sleep((self.create.period*1000. - elapsed)/1000.)
 
-class Create:
-	"""Wrapper class for the iRobot Create"""
+class Roomba:
+	"""Wrapper class for the iRobot Roomba"""
 
 	def __init__(self, tty="/dev/ttyUSB0"):
-		"""constructor for the Create, takes in a single argument: the serial port"""
-		print "init Create Class"
+		"""constructor for the Roomba, takes in a single argument: the serial port"""
+		print "init Roomba Class"
 		self.timeout = 5
 		self.period = .07
 		self.runRef = []
@@ -143,8 +143,8 @@ class Create:
 		print "Init is done"
 
 	def start(self):
-		"""Start the iCreate after initialization or reset."""
-		print "Starting Create"
+		"""Start the roomba after initialization or reset."""
+		print "Starting Roomba"
 		#send the start command tell the roomba that i will be sending commands to it
 		self.__sendNow(128)
 		sleep(.1)
@@ -163,7 +163,7 @@ class Create:
 		sleep(1.5)
 
 	def stop(self):
-		"""Stop the iCreate. Must be called before deletion of the iCreate object."""
+		"""Stop the roomba. Must be called before deletion of the roomba object."""
 		self.runRef.append('quit')
 		sleep(1)
 		rh,rl = self.__convert(0)
@@ -172,7 +172,7 @@ class Create:
 		self.__sendNow(139,0,0,255)
 
 	def reset(self):
-		"""Reset the iCreate."""
+		"""Reset the roomba."""
 		self.runRef.append('quit')
 		self.runRef = []
 		sleep(1)
@@ -267,11 +267,11 @@ class Create:
 		self.port.close()
 
 	def brake(self):
-		"""Stops the iCreate, takes no parameters"""
+		"""Stops the roomba, takes no parameters"""
 		self.drive(0,0)
 
 	def demo(self, num):
-		"""Takes a single parameter, the number of the demo to begin. "Running" demo -1 will stop the demo. After using this function the iCreate must be reset.""" 
+		"""Takes a single parameter, the number of the demo to begin. "Running" demo -1 will stop the demo. After using this function the roomba must be reset.""" 
 		if (num == -1):
 			num = 255
 		self.send(136,num)
@@ -290,7 +290,7 @@ class Create:
 		self.send(139,bits,color,intensity)
 
 	def storeSong(self, num, *song):
-		"""Store a song. First parameter is the song number, the remaming arguments are taken to be of the form: note, duration, note, duration, etc. See page 12 of the iRobot Create Open Interface Manual for numerical note definitions. Duration is interpreted as duration*1/64th of a second."""
+		"""Store a song. First parameter is the song number, the remaming arguments are taken to be of the form: note, duration, note, duration, etc. See page 12 of the iRobot Open Interface Manual for numerical note definitions. Duration is interpreted as duration*1/64th of a second."""
 		if (len(song) > 32):
 			song = song[:31]
 		self.send(140,num,len(song)/2,*song)
@@ -320,7 +320,7 @@ class Create:
 
 
 	def drive(self,speed,radius):
-		"""Takes two parameters: speed and radius. Drives the iCreate at speed with enough of an angle that the iCreate will carve a circle with the given radius. Speed is in mm/s and can vary between -500 and 500. The radius can vary between -2000 and 2000 mm (with negative mm turning left)."""
+		"""Takes two parameters: speed and radius. Drives the roomba at speed with enough of an angle that the roomba will carve a circle with the given radius. Speed is in mm/s and can vary between -500 and 500. The radius can vary between -2000 and 2000 mm (with negative mm turning left)."""
 		if (speed > 500):
 			speed = 500
 		if (speed < -500):

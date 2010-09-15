@@ -2,7 +2,7 @@
 import roslib; roslib.load_manifest('irobot_create_2_1')
 import rospy
 from time import sleep
-from irobot import Create
+from irobot import Roomba
 from threading import Thread
 from math import sin,cos,pi
 from datetime import datetime
@@ -15,10 +15,10 @@ from tf.broadcaster import TransformBroadcaster
 from irobot_create_2_1.msg import SensorPacket
 from irobot_create_2_1.srv import *
 
-class CreateDriver:
+class RoombaDriver:
 	def __init__(self):
 		port = rospy.get_param('/brown/irobot_create_2_1/port', "/dev/ttyUSB0")
-		self.create = Create(port)
+		self.roomba = Roomba(port)
 		self.packetPub = rospy.Publisher('sensorPacket', SensorPacket)
 		self.odomPub = rospy.Publisher('odom',Odometry)
 		self.odomBroadcaster = TransformBroadcaster()
@@ -27,22 +27,22 @@ class CreateDriver:
 		self.x = 0
 		self.y = 0
 		self.th = 0
-		self.create.update = self.sense
+		self.roomba.update = self.sense
 
 	def start(self):
-		self.create.start()
+		self.roomba.start()
 		self.then = datetime.now() 
 
 	def stop(self):
-		self.create.stop()
+		self.roomba.stop()
 
 	def sense(self):
 		now = datetime.now()
 		elapsed = now - self.then
 		self.then = now
 		elapsed = float(elapsed.seconds) + elapsed.microseconds/1000000.
-		d = self.create.d_distance / 1000.
-		th = self.create.d_angle*pi/180
+		d = self.roomba.d_distance / 1000.
+		th = self.roomba.d_angle*pi/180
 		dx = d / elapsed
 		dth = th / elapsed
 
@@ -86,31 +86,31 @@ class CreateDriver:
 
 		packet = SensorPacket()
 		for field in self.fields:
-			packet.__setattr__(field,self.create.__getattr__(field))
+			packet.__setattr__(field,self.roomba.__getattr__(field))
 		self.packetPub.publish(packet)
 
 	def brake(self,req):
 		if (req.brake):
-			self.create.brake()
+			self.roomba.brake()
 		return BrakeResponse(True)
 
 	def demo(self,req):
-		self.create.demo(req.demo)
+		self.roomba.demo(req.demo)
 		return DemoResponse(True)
 
 	def leds(self,req):
-		self.create.leds(req.advance,req.play,req.color,req.intensity)
+		self.roomba.leds(req.advance,req.play,req.color,req.intensity)
 		return LedsResponse(True)
 
 	def twist(self,req):
 		x = req.linear.x*1000
 		omega = req.angular.z
-		self.create.driveTwist(x,omega)
+		self.roomba.driveTwist(x,omega)
 
 
 if __name__ == '__main__':
 	node = rospy.init_node('create')
-	driver = CreateDriver()
+	driver = RoombaDriver()
 	
 	rospy.Service('brake',Brake,driver.brake)
 	#rospy.Service('demo',Demo,driver.demo)
